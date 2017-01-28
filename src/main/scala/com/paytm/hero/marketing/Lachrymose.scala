@@ -23,46 +23,6 @@ object Lachrymose {
       .getOrCreate()
 
 
-    //boilerplate start
-
-    val files = FileSystem.get(sc.hadoopConfiguration).listStatus(new Path("/hadoopPath"))
-
-
-    def doSomething(file: String) = {
-
-      println(file);
-
-      // your logic of processing a single file comes here
-
-      val x = sc.textFile(file);
-      val classMapper = x.map(_.split("\\|"))
-        .map(x => refLineID(
-          x(0).toString,
-          x(1).toString
-        )).toDF
-
-
-      classMapper.show()
-
-
-    }
-
-    files.foreach(filename => {
-      // the following code makes sure "_SUCCESS" file name is not processed
-      val a = filename.getPath.toString()
-      val m = a.split("/")
-      val name = m(10)
-      println("\nFILENAME: " + name)
-      if (name == "_SUCCESS") {
-        println("Cannot Process '_SUCCSS' Filename")
-      } else {
-        doSomething(a)
-      }
-
-    })
-
-    //boilerplate end
-
 
     import sqlContext.implicits._
 
