@@ -1,6 +1,6 @@
 package com.paytm.hero.marketing
 
-import org.apache.hadoop.fs.{FileSystem, Path}
+
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.{SparkConf, SparkContext}
@@ -11,6 +11,9 @@ object Lachrymose {
     val ga_path = s"/workspace/midgar/prod/base/ga_sanitized/"
     val oauth_snap = "/apps/hive/warehouse/oauth.db/customer_registration_snapshot_v2"
     val output_path = s"/tmp/adam"
+    val txt_output = "/tmp/adam-count.txt"
+    val hdfs_user = "adam"
+    val hdfs_connect_string = "hdfs://labshdpds2"
 
     val ga_dates = Array("dateday=20170126/", "dateday=20170120/", "dateday=20170121/", "dateday=20170122/", "dateday=20170123/", "dateday=20170124/", "dateday=20170125/", "dateday=20170126/")
 
@@ -42,6 +45,8 @@ object Lachrymose {
 
 
     ga_dates.foreach(x => processGAData(x))
+
+    HDFSHelper.write(hdfs_connect_string, txt_output, ga_dates.toString.getBytes, hdfs_user)
 
   }
 }
