@@ -47,7 +47,9 @@ object Lachrymose {
 
     ga_dates.foreach(x => processGAData(x))
 
-    HDFSHelper.write(hdfs_connect_string, txt_output, ga_dates.toString.getBytes, hdfs_user)
+    val gaDirContents = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
+
+    HDFSHelper.write(hdfs_connect_string, txt_output, gaDirContents.mkString("\n").getBytes, hdfs_user)
 
   }
 }
