@@ -4,14 +4,15 @@ package com.paytm.hero.marketing
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.{SparkConf, SparkContext}
-
+import java.util.Calendar
 
 object Lachrymose {
   def main(args: Array[String]) {
+
     val ga_path = s"/workspace/midgar/prod/base/ga_sanitized/"
     val oauth_snap = "/apps/hive/warehouse/oauth.db/customer_registration_snapshot_v2"
     val output_path = s"/tmp/adam"
-    val txt_output = "/tmp/adam-count.txt"
+    val txt_output = "/tmp/adam-count" + Calendar.getInstance().get(Calendar.SECOND) + ".txt"
     val hdfs_user = "adam"
     val hdfs_connect_string = "hdfs://labshdpds2"
 
