@@ -88,7 +88,6 @@ object Lachrymose {
       }
 
       aggregateGA = gaDFs.reduceLeft((left, right) => left.union(right))
-      println("!!!!!!! aggregateGA count:  " + aggregateGA.count().toString)
 
       //join with oauth to enrich with contact information
       ga_customer_enriched = oauth.join(aggregateGA, oauth("customer_registrationid") === aggregateGA("customer_id"), "inner")
@@ -108,8 +107,8 @@ object Lachrymose {
     //processGAData(ga_dates, canada).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + canada)
     //processGAData(ga_dates, us).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + us)
 
-    processGAData(ga_dates, canada).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + canada + ".csv")
-    processGAData(ga_dates, us).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + us + ".csv")
+    processGAData(ga_dates, canada).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + canada)
+    processGAData(ga_dates, us).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + us)
 
 
     HDFSHelper.write(hdfs_connect_string, date_list_txt, ga_dates.mkString("\n").getBytes, hdfs_user)
