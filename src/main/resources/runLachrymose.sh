@@ -1,0 +1,1 @@
+/opt/spark-2.0.2-bin-2.7.3/bin/spark-submit --class com.paytm.hero.marketing.Lachrymose --master yarn --deploy-mode cluster --driver-memory 4g --executor-memory 8g --executor-cores 4 --queue dataprocessing --num-executors 50 ~/lachrymose_2.11-1.0.jar
