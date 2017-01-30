@@ -16,7 +16,8 @@ object Lachrymose {
     val hdfs_user = "adam"
     val hdfs_connect_string = "hdfs://labshdpds2"
 
-    val ga_dates = Array("dateday=20170126/", "dateday=20170120/", "dateday=20170121/", "dateday=20170122/", "dateday=20170123/", "dateday=20170124/", "dateday=20170125/", "dateday=20170126/")
+    //val ga_dates = Array("dateday=20170126/", "dateday=20170120/", "dateday=20170121/", "dateday=20170122/", "dateday=20170123/", "dateday=20170124/", "dateday=20170125/", "dateday=20170126/")
+    val ga_dates : Array[String] = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
 
     val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
@@ -47,9 +48,9 @@ object Lachrymose {
 
     ga_dates.foreach(x => processGAData(x))
 
-    val gaDirContents = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
 
-    HDFSHelper.write(hdfs_connect_string, txt_output, gaDirContents.mkString("\n").getBytes, hdfs_user)
+
+    HDFSHelper.write(hdfs_connect_string, txt_output, ga_dates.mkString("\n").getBytes, hdfs_user)
 
   }
 }

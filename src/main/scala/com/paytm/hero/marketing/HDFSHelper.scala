@@ -28,6 +28,7 @@ object HDFSHelper {
     conf.set("fs.defaultFS", uri)
     val fs = FileSystem.get(conf)
 
+    //get the leaf files or directories, no recursion
     val files = fs.listStatus(path)
 
     var cleanPaths = Array[String]()
@@ -36,15 +37,17 @@ object HDFSHelper {
       // the following code makes sure "_SUCCESS" file name is not processed
       val a = filename.getPath.toString()
       val m = a.split("/")
-      val name = m(10)
-      println("\nFILENAME: " + name)
+      //only returns the file or directory name, not the fully qualified file system path
+      val name = m.last
+
       if (name != "_SUCCESS") {
-        cleanPaths +:= name
+        cleanPaths.+:=(name)
       }
 
     })
+    fs.close()
 
-    return cleanPaths
+    cleanPaths
 
   }
 
