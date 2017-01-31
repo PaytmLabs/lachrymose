@@ -18,8 +18,8 @@ object Lachrymose {
     val us = "United States"
     val hdfs_user = "adam"
     val hdfs_connect_string = "hdfs://labshdpds2"
-    val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117")
-    //val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117", "dateday=20170118", "dateday=20170119", "dateday=20170120", "dateday=20170121", "dateday=20170122", "dateday=20170123", "dateday=20170124", "dateday=20170125", "dateday=20170126")
+    //val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117")
+    val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117", "dateday=20170118", "dateday=20170119", "dateday=20170120", "dateday=20170121", "dateday=20170122", "dateday=20170123", "dateday=20170124", "dateday=20170125", "dateday=20170126")
     //val ga_dates : Array[String] = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
 
     val conf = new SparkConf().setAppName("Simple Application")
@@ -57,28 +57,24 @@ object Lachrymose {
     //enrichment done, don't need oauth in mem
     oauth.unpersist()
 
-    /*
-        //dedupe
-          sqlContext.read
-          .option("mergeSchema", "true")
-          .parquet(ga_temp_output_path + noWhiteSpace(canada) )
-          .dropDuplicates(Seq("customer_id"))
-          .write.format("com.databricks.spark.csv")
-          .mode("overwrite")
-          .save(ga_final_output_path + "can_dedupe" )
+    //dedupe
+    sqlContext.read
+      .option("mergeSchema", "true")
+      .parquet(ga_temp_output_path + noWhiteSpace(canada))
+      .dropDuplicates(Seq("customer_id"))
+      .write.format("com.databricks.spark.csv")
+      .mode("overwrite")
+      .save(ga_final_output_path + "can_dedupe")
 
 
-
-        //dedupe
-          sqlContext.read
-          .option("mergeSchema", "true")
-          .parquet(ga_temp_output_path + noWhiteSpace(us))
-          .dropDuplicates(Seq("customer_id"))
-          .write.format("com.databricks.spark.csv")
-          .mode("overwrite")
-          .save(ga_final_output_path + "us_dedupe" )
-
-    */
+    //dedupe
+    sqlContext.read
+      .option("mergeSchema", "true")
+      .parquet(ga_temp_output_path + noWhiteSpace(us))
+      .dropDuplicates(Seq("customer_id"))
+      .write.format("com.databricks.spark.csv")
+      .mode("overwrite")
+      .save(ga_final_output_path + "us_dedupe")
 
 
     //method processes a single GA file passed to it
