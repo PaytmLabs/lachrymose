@@ -69,6 +69,7 @@ object Lachrymose {
         .groupBy("customer_id").agg(sum("transaction_revenue").as("totalRevenue"), first("geo_country").as("location"))
         .withColumn("purchaseFlag", when($"totalRevenue".gt(0), 1).otherwise(0))
         .select("customer_id", "purchaseFlag", "location")
+        .dropDuplicates(Seq("customer_id"))
 
       ga_file_filtered
 
@@ -89,7 +90,6 @@ object Lachrymose {
       }
 
       aggregateGA = gaDFs.reduceLeft((left, right) => left.union(right))
-        .dropDuplicates(Seq("customer_id"))
 
       //join with oauth to enrich with contact information
       ga_customer_enriched = oauth.join(aggregateGA, oauth("customer_registrationid") === aggregateGA("customer_id"), "inner")
@@ -106,11 +106,11 @@ object Lachrymose {
     oauth.unpersist()
 
     //process GA + Ouath data for Canada & US
-    //processGAData(ga_dates, canada).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + "can")
-    //processGAData(ga_dates, us).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + "us")
+    //processGAData(ga_dates, canada).coalesce(50).write.mode("overwrite").parquet(ga_temp_output_path + "can")
+    //processGAData(ga_dates, us).coalesce(50).write.mode("overwrite").parquet(ga_temp_output_path + "us")
 
-    processGAData(ga_dates, canada).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "can")
-    processGAData(ga_dates, us).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "us")
+    processGAData(ga_dates, canada).coalesce(10).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "can")
+    processGAData(ga_dates, us).coalesce(10).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "us")
 
 
     HDFSHelper.write(hdfs_connect_string, date_list_txt, ga_dates.mkString("\n").getBytes, hdfs_user)
