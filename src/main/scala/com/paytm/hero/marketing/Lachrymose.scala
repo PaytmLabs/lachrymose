@@ -33,6 +33,7 @@ object Lachrymose {
       .appName("lacyrymose")
       .getOrCreate()
 
+    //explicit schemas to help write the tests I will forget about later
     val gaTempSchema =
       StructType(
         StructField("customer_id", StringType, true) ::
@@ -88,6 +89,7 @@ object Lachrymose {
       }
 
       aggregateGA = gaDFs.reduceLeft((left, right) => left.union(right))
+        .dropDuplicates(Seq("customer_id"))
 
       //join with oauth to enrich with contact information
       ga_customer_enriched = oauth.join(aggregateGA, oauth("customer_registrationid") === aggregateGA("customer_id"), "inner")
@@ -95,7 +97,7 @@ object Lachrymose {
         .filter($"customer_phone" isNotNull)
         .select("customer_id", "customer_phone", "customer_email", "customer_name", "location", "purchaseFlag")
 
-      //ga_customer_enriched.dropDuplicates(Seq("customer_id"))
+
       ga_customer_enriched
     }
 
@@ -104,11 +106,11 @@ object Lachrymose {
     oauth.unpersist()
 
     //process GA + Ouath data for Canada & US
-    //processGAData(ga_dates, canada).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + canada)
-    //processGAData(ga_dates, us).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + us)
+    //processGAData(ga_dates, canada).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + "can")
+    //processGAData(ga_dates, us).coalesce(1).write.mode("overwrite").parquet(ga_temp_output_path + "us")
 
-    processGAData(ga_dates, canada).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + canada)
-    processGAData(ga_dates, us).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + us)
+    processGAData(ga_dates, canada).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "can")
+    processGAData(ga_dates, us).coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "us")
 
 
     HDFSHelper.write(hdfs_connect_string, date_list_txt, ga_dates.mkString("\n").getBytes, hdfs_user)
