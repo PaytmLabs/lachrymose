@@ -57,7 +57,7 @@ object Lachrymose {
     //enrichment done, don't need oauth in mem
     oauth.unpersist()
 
-    /*
+
     //dedupe
     sqlContext.read
       .option("mergeSchema", "true")
@@ -65,7 +65,7 @@ object Lachrymose {
       .dropDuplicates(Seq("customer_id"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
-      .save(ga_final_output_path + "can_dedupe")
+      .save(ga_final_output_path + noWhiteSpace(canada) + "_dedupe")
 
 
     //dedupe
@@ -75,8 +75,8 @@ object Lachrymose {
       .dropDuplicates(Seq("customer_id"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
-      .save(ga_final_output_path + "us_dedupe")
-    */
+      .save(ga_final_output_path + noWhiteSpace(us) + "_dedupe")
+
 
     //method processes a single GA file passed to it
     def processGAFilesByCountry(date: String, country: String): DataFrame = {
