@@ -19,10 +19,11 @@ object Lachrymose {
     val oauth_snap_path = "/apps/hive/warehouse/oauth.db/customer_registration_snapshot_v2"
     val canada = "Canada"
     val us = "United States"
-    val date_list_txt = "/tmp/adam-count" + timestamp + ".txt"
+    val row_counts = "/tmp/hero-counts_"
     val hdfs_user = "adam"
     val hdfs_connect_string = "hdfs://labshdpds2"
-    val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117", "dateday=20170118", "dateday=20170119", "dateday=20170120", "dateday=20170121", "dateday=20170122", "dateday=20170123", "dateday=20170124", "dateday=20170125", "dateday=20170126")
+    val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117")
+    //val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117", "dateday=20170118", "dateday=20170119", "dateday=20170120", "dateday=20170121", "dateday=20170122", "dateday=20170123", "dateday=20170124", "dateday=20170125", "dateday=20170126")
     //val ga_dates : Array[String] = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
 
     val conf = new SparkConf().setAppName("Simple Application")
@@ -98,7 +99,10 @@ object Lachrymose {
         .select("customer_id", "customer_phone", "customer_email", "customer_name", "location", "purchaseFlag")
 
 
-      ga_customer_enriched.dropDuplicates(Seq("customer_id"))
+      val ga_deduped = ga_customer_enriched.dropDuplicates(Seq("customer_id"))
+      HDFSHelper.write(hdfs_connect_string, row_counts + country, ga_deduped.count().toString.getBytes, hdfs_user)
+
+      ga_deduped
     }
 
 
@@ -112,12 +116,6 @@ object Lachrymose {
     processGAData(ga_dates, canada).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "can")
     processGAData(ga_dates, us).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "us")
 
-
-    HDFSHelper.write(hdfs_connect_string, date_list_txt, ga_dates.mkString("\n").getBytes, hdfs_user)
-
-    //Known bugs: will have duplicate entries for customers. Easier to post process on one machine.
-    // Possibly write a follow up method to pick up the parquet version, dedupe, and then write out
-    //
 
   }
 }
