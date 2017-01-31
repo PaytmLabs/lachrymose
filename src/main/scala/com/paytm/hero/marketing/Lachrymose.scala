@@ -118,6 +118,7 @@ object Lachrymose {
     //processGAData(ga_dates, canada).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "can")
     //processGAData(ga_dates, us).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "us")
 
+    //dedupe
       sqlContext.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + "can")
@@ -126,6 +127,7 @@ object Lachrymose {
       .mode("overwrite")
       .save(ga_temp_output_path + "can_dedupe" )
 
+    //dedupe
       sqlContext.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + "us")
