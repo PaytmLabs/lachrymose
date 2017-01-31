@@ -106,11 +106,11 @@ object Lachrymose {
     oauth.unpersist()
 
     //process GA + Ouath data for Canada & US
-    processGAData(ga_dates, canada).write.mode("overwrite").parquet(ga_temp_output_path + "can")
-    processGAData(ga_dates, us).write.mode("overwrite").parquet(ga_temp_output_path + "us")
+    //processGAData(ga_dates, canada).write.mode("overwrite").parquet(ga_temp_output_path + "can")
+    //processGAData(ga_dates, us).write.mode("overwrite").parquet(ga_temp_output_path + "us")
 
-    //processGAData(ga_dates, canada).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "can")
-    //processGAData(ga_dates, us).write.format("com.databricks.spark.csv").option("header", "true").save(ga_temp_output_path + "us")
+    processGAData(ga_dates, canada).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "can")
+    processGAData(ga_dates, us).write.format("com.databricks.spark.csv").mode("overwrite").option("header", "true").save(ga_temp_output_path + "us")
 
 
     HDFSHelper.write(hdfs_connect_string, date_list_txt, ga_dates.mkString("\n").getBytes, hdfs_user)
