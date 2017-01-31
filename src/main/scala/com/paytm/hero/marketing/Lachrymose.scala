@@ -22,9 +22,9 @@ object Lachrymose {
     val row_counts = "/tmp/hero-counts_"
     val hdfs_user = "adam"
     val hdfs_connect_string = "hdfs://labshdpds2"
-    val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117")
+    //val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117")
     //val ga_dates: Array[String] = Array("dateday=20170116", "dateday=20170117", "dateday=20170118", "dateday=20170119", "dateday=20170120", "dateday=20170121", "dateday=20170122", "dateday=20170123", "dateday=20170124", "dateday=20170125", "dateday=20170126")
-    //val ga_dates : Array[String] = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
+    val ga_dates : Array[String] = HDFSHelper.getFileListFromDirectory(hdfs_connect_string, ga_path, hdfs_user)
 
     val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
