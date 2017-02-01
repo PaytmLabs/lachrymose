@@ -62,6 +62,7 @@ object Lachrymose {
     sqlContext.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + noWhiteSpace(canada))
+      .coalesce(1)
       .dropDuplicates(Seq("customer_id"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
@@ -72,6 +73,7 @@ object Lachrymose {
     sqlContext.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + noWhiteSpace(us))
+      .coalesce(1)
       .dropDuplicates(Seq("customer_id"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
