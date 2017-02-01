@@ -24,8 +24,8 @@ object Lachrymose {
 
     val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
-    sc.setLogLevel("WARN")
-    val sqlContext = SparkSession
+    sc.setLogLevel("ERROR")
+    val spark = SparkSession
       .builder()
       .appName("lacyrymose")
       .getOrCreate()
@@ -42,11 +42,11 @@ object Lachrymose {
       )
 
 
-    import sqlContext.implicits._
+    import spark.implicits._
 
 
     //load and cache oauth
-    val oauth = sqlContext.read.parquet(oauth_snap_path).
+    val oauth = spark.read.parquet(oauth_snap_path).
       select("customer_email", "customer_registrationid", "customer_phone", "customer_name").cache()
 
 
@@ -59,22 +59,22 @@ object Lachrymose {
 
 
     //dedupe
-    sqlContext.read
+    spark.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + noWhiteSpace(canada))
       .coalesce(1)
-      .dropDuplicates(Seq("customer_id"))
+      .dropDuplicates(Seq("customer_email"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
       .save(ga_final_output_path + noWhiteSpace(canada) + "_dedupe")
 
 
     //dedupe
-    sqlContext.read
+    spark.read
       .option("mergeSchema", "true")
       .parquet(ga_temp_output_path + noWhiteSpace(us))
       .coalesce(1)
-      .dropDuplicates(Seq("customer_id"))
+      .dropDuplicates(Seq("customer_email"))
       .write.format("com.databricks.spark.csv")
       .mode("overwrite")
       .save(ga_final_output_path + noWhiteSpace(us) + "_dedupe")
@@ -82,7 +82,7 @@ object Lachrymose {
 
     //method processes a single GA file passed to it
     def processGAFilesByCountry(date: String, country: String): DataFrame = {
-      val ga_file_filtered = sqlContext.read
+      val ga_file_filtered = spark.read
         .option("mergeSchema", "true")
         .parquet(s"$ga_path/$date")
         .filter($"geo_country" === country)
@@ -90,13 +90,12 @@ object Lachrymose {
         .groupBy("customer_id").agg(sum("transaction_revenue").as("totalRevenue"), first("geo_country").as("location"))
         .withColumn("purchaseFlag", when($"totalRevenue".gt(0), 1).otherwise(0))
         .select("customer_id", "purchaseFlag", "location")
-        .dropDuplicates("customer_id")
+
 
       //join with oauth to enrich with contact information
-      var ga_customer_enriched = sqlContext.createDataFrame(sc.emptyRDD[Row], finalDataSchema)
+      var ga_customer_enriched = spark.createDataFrame(sc.emptyRDD[Row], finalDataSchema)
       ga_customer_enriched = oauth.join(ga_file_filtered, oauth("customer_registrationid") === ga_file_filtered("customer_id"), "inner")
         .drop("customer_registrationid")
-        .filter($"customer_phone" isNotNull)
         .select("customer_id", "customer_phone", "customer_email", "customer_name", "location", "purchaseFlag")
 
       ga_customer_enriched
